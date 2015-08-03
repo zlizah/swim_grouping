@@ -2,7 +2,7 @@
 import java.util.Random;
 
 /**
- *
+ * Class used for generating swimmers in testing purposes.
  */
 public class SwimmerGenerator() {
     /* Generate a random string */
@@ -14,7 +14,7 @@ public class SwimmerGenerator() {
         return new String(text);
     }
     
-    /* */
+    /* Generate some swimmers as test data */
     public static Swimmer[] generateSwimmers(int amount) {
         Random rng = new Random();
         String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
