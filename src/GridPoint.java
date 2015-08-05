@@ -8,7 +8,7 @@
  */
 public class GridPoint {
     /* Fields */
-    private static final DIMENSIONS = 2; //TODO needed?
+    //private static final DIMENSIONS = 2;
     public final Object ASSOCIATED_OBJECT;
     private float[] coordinates;
     
