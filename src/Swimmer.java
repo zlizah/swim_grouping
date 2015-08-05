@@ -1,6 +1,7 @@
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.math.BigDecimal;
 
 /**
@@ -16,16 +17,35 @@ import java.math.BigDecimal;
 public class Swimmer {
     /* Fields */
     public final Calendar BIRTHDATE;
-    public final String NAME;
+    public final String FIRST_NAMES;
+    public final String LAST_NAMES;
     public final String TOWN;
     public final String CURRENT_LEVEL;
     public final String CURRENT_GROUP;
     public final String RECOMENDATION;
-    public final HashMap PRACTICE_TIMES;
+    //public final LinkedList PRACTICE_TIMES;
     
     /* Constructor */
-    public Swimmer(HashMap params) {
-        //TODO Set fields
+    public Swimmer(HashMap<String, String> params) {
+        /* Set fields */
+        FIRST_NAMES = params.get("first_name");
+        LAST_NAMES = params.get("last_name");
+        TOWN = params.get("town");
+        CURRENT_LEVEL = params.get("level");
+        CURRENT_GROUP = params.get("group_name");
+        RECOMENDATION = params.get("recommendation");
+        
+        /* Convert birth date to a Calendar object */
+        String date_string = params.get("birth_date");
+        String[] date = date_string.split("-");
+        BIRTHDATE = Calendar.getInstance();
+        BIRTHDATE.clear();
+        
+        int year = Integer.parseInt(date[0]);
+        int month = Integer.parseInt(date[1]);
+        int day = Integer.parseInt(date[2]);
+        
+        BIRTHDATE.set(year, month, day);
     }
     
     /**
