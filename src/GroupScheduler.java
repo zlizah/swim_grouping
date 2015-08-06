@@ -34,6 +34,19 @@ public class GroupScheduler {
         }
     }
     
+    /* Chose the clusters closest to the given data point */
+    private GridPoint nearestCluster(GridPoint data_point, GridPoint[] clusters) {
+        int min = -1;
+        GridPoint nearest = null;
+        for (GridPoint cluster : clusters) {
+           int dis = distance(data_point, cluster);
+           if (dis < min || min == -1) {
+               nearest = cluster;
+           }
+        }
+        return nearest;
+    }
+    
     /* Main function used to do the scheduling */
     public void scheduleGroups(int groupAmount) {
         /* Clear old clusters and generate new */
@@ -41,6 +54,22 @@ public class GroupScheduler {
         initializeClusters(groupAmount);
         
         /* TODO Implement k-means */
+        
+        /* Clusters should be able to store data points.
+            Let gridpoint he an interface implemented by
+            data_point and cluster
+            where data point stores a swimmer and cluster
+            stores a list of data points
+        */
+        
+        
+        /* Chose the closest cluster for all data points */
+        for (GridPoint data_point : data_points) {
+            GridPoint closest = nearestCluster(data_point, clusters);
+            /* TODO Store the data point in the closest cluster */
+        }
+        
+        /* TODO Move each group to the mean of all its points */
     }
     
     /* Calculate the distance between two points on the grid */
