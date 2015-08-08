@@ -1,25 +1,50 @@
 
-import java.util.LinkedList;
 import java.util.Random;
+import java.util.Stack;
 
 /**
  * Main class that does the scheduling
  */
 public class GroupScheduler {
     /* Fields */
-    private GridPoint[] data_points;
-    private GridPoint[] clusters;
+    private DataPoint[] data_points;
+    private Cluster[] clusters;
     
     /* Constructor */
     public GroupScheduler(Swimmer[] swimmers) {
         /* Initialize lists that hold the data points and clusters */
-        data_points = new GridPoint[swimmers.length];
+        data_points = new DataPoint[swimmers.length];
         
         /* Fill the list of data points */
         for (int i = 0; i < swimmers.length; i++) { 
             Swimmer s = swimmers[i];
             float[] coords = s.generateGirdCoordinates();
-            data_points[i] = new GridPoint(coords, s);
+            data_points[i] = new DataPoint(coords, s);
+        }
+    }
+        
+    /* Main function used to do the scheduling using the K-means algorithm */
+    public void scheduleGroups(int groupAmount) {
+        /* Clear old clusters and generate new */
+        clusters = new Cluster[groupAmount];
+        initializeClusters(groupAmount);
+        
+        /* TODO 
+            Iterate until the sum of all distances between data points 
+            and their respective cluster is small enough 
+        */
+        
+        /* Store all data points in its closest cluster */
+        for (DataPoint data_point : data_points) {
+            Cluster closest = nearestCluster(data_point, clusters);
+            closest.addPoint(data_point);
+        }
+        
+        /* Move each group to the mean of all its points */
+        for (Cluster c : clusters) {
+            Stack<DataPoint> dps = c.getDataPoints();
+            float[] meanPos = meanGridPosition(dps);
+            c.setPosition(meanPos);
         }
     }
     
@@ -30,46 +55,44 @@ public class GroupScheduler {
             /* Place each cluster at a random data point */
             int index = rng.nextInt(data_points.length);
             float[] coords = data_points[i].getPosition();
-            clusters[i] = new GridPoint(coords, null);
+            clusters[i] = new Cluster(coords);
         }
+    }
+    
+    /* Calculates the mean position of the given data points */
+    public float[] meanGridPosition(Stack<DataPoint> dps) {
+        int dimension = dps.peek().getPosition().length;
+        float[] sums = new float[dimension];
+        int stacksize = 0;
+        
+        /* Summarize each dimension (x, y, z, ...) into an array */
+        while (!dps.empty()) {
+            DataPoint point = dps.pop();
+            float[] coords = point.getPosition();
+            for (int i = 0; i < coords.length; i++) {
+                sums[i] += coords[i];
+            }
+            stacksize += 1;
+        }
+        
+        /* Then divide each sum with the amount of data points to get the mean */
+        for (int i = 0; i < dimension; i++) {
+            sums[i] /= stacksize;
+        }      
+        return sums;
     }
     
     /* Chose the clusters closest to the given data point */
-    private GridPoint nearestCluster(GridPoint data_point, GridPoint[] clusters) {
-        int min = -1;
-        GridPoint nearest = null;
-        for (GridPoint cluster : clusters) {
-           int dis = distance(data_point, cluster);
-           if (dis < min || min == -1) {
-               nearest = cluster;
-           }
+    private Cluster nearestCluster(DataPoint data_point, Cluster[] clusters) {
+        float min = -1;
+        Cluster nearest = null;
+        for (Cluster cluster : clusters) {
+            float dis = distance(data_point, cluster);
+            if (dis < min || min == -1) {
+                nearest = cluster;
+            }
         }
         return nearest;
-    }
-    
-    /* Main function used to do the scheduling */
-    public void scheduleGroups(int groupAmount) {
-        /* Clear old clusters and generate new */
-        clusters = new GridPoint[groupAmount];
-        initializeClusters(groupAmount);
-        
-        /* TODO Implement k-means */
-        
-        /* Clusters should be able to store data points.
-            Let gridpoint he an interface implemented by
-            data_point and cluster
-            where data point stores a swimmer and cluster
-            stores a list of data points
-        */
-        
-        
-        /* Chose the closest cluster for all data points */
-        for (GridPoint data_point : data_points) {
-            GridPoint closest = nearestCluster(data_point, clusters);
-            /* TODO Store the data point in the closest cluster */
-        }
-        
-        /* TODO Move each group to the mean of all its points */
     }
     
     /* Calculate the distance between two points on the grid */
