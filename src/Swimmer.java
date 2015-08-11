@@ -31,9 +31,9 @@ public class Swimmer {
         FIRST_NAMES = params.get("first_name");
         LAST_NAMES = params.get("last_name");
         TOWN = params.get("town");
-        CURRENT_LEVEL = params.get("level");
+        CURRENT_LEVEL = params.get("level"); //Ex Bronze 5
         CURRENT_GROUP = params.get("group_name");
-        RECOMENDATION = params.get("recommendation");
+        RECOMENDATION = params.get("recommendation"); //Ex silver 5 
         
         /* Convert birth date to a Calendar object */
         String date_string = params.get("birth_date");

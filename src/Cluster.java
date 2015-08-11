@@ -15,6 +15,11 @@ public class Cluster implements GridPoint {
         assignedDataPoints = new Stack<DataPoint>();
     }
     
+    /* Clears all data points assigned to this cluster */
+    public void clearDataPoints() {
+        assignedDataPoints = new Stack<DataPoint>();
+    }
+    
     /* Get current position of this point */
     public float[] getPosition() {
         return coordinates;

@@ -22,30 +22,63 @@ public class GroupScheduler {
             data_points[i] = new DataPoint(coords, s);
         }
     }
+    
+    /**
+     * Main
+     */
+    public static void main(String[] args) {
+        /* TODO Generate some swimmers */
+        /* TODO Group the swimmers */
+    }
         
     /* Main function used to do the scheduling using the K-means algorithm */
-    public void scheduleGroups(int groupAmount) {
+    public Cluster[] scheduleGroups(int groupAmount) {
         /* Clear old clusters and generate new */
         clusters = new Cluster[groupAmount];
         initializeClusters(groupAmount);
         
-        /* TODO 
-            Iterate until the sum of all distances between data points 
-            and their respective cluster is small enough 
-        */
+        /* Initial cluster distances */
+        int oldClusterDistance = Integer.MAX_VALUE;
+        int currentClusterDistance = totalClusterDistance();
         
-        /* Store all data points in its closest cluster */
-        for (DataPoint data_point : data_points) {
-            Cluster closest = nearestCluster(data_point, clusters);
-            closest.addPoint(data_point);
+        /* Iterate k-means until the total distance remains unchanged */
+        while(oldClusterDistance > currentClusterDistance) {           
+            /* Clear all assigned data points to the clusters */
+            for (Cluster c : clusters) {
+                c.clearDataPoints();
+            }
+            
+            /* Store all data points in its closest cluster */
+            for (DataPoint data_point : data_points) {
+                Cluster closest = nearestCluster(data_point, clusters);
+                closest.addPoint(data_point);
+            }
+            
+            /* Move each group to the mean of all its points */
+            for (Cluster c : clusters) {
+                Stack<DataPoint> dps = c.getDataPoints();
+                float[] meanPos = meanGridPosition(dps);
+                c.setPosition(meanPos);
+            }
+            
+            /* Update the total cluster distances */
+            oldClusterDistance = currentClusterDistance;
+            currentClusterDistance = totalClusterDistance();
         }
-        
-        /* Move each group to the mean of all its points */
+        return clusters;
+    }
+    
+    /* Calculates the total distance between all data point/cluster pair */
+    private int totalClusterDistance() {
+        int total = 0;
         for (Cluster c : clusters) {
             Stack<DataPoint> dps = c.getDataPoints();
-            float[] meanPos = meanGridPosition(dps);
-            c.setPosition(meanPos);
+            while (!dps.empty()) {
+                DataPoint point = dps.pop();
+                total += distance(point, c);
+            }
         }
+        return total;
     }
     
     /* Initialize the groups, current done randomly */
@@ -60,7 +93,7 @@ public class GroupScheduler {
     }
     
     /* Calculates the mean position of the given data points */
-    public float[] meanGridPosition(Stack<DataPoint> dps) {
+    private float[] meanGridPosition(Stack<DataPoint> dps) {
         int dimension = dps.peek().getPosition().length;
         float[] sums = new float[dimension];
         int stacksize = 0;
