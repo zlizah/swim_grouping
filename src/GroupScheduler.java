@@ -1,6 +1,6 @@
 
 import java.util.Random;
-import java.util.Stack;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -38,14 +38,17 @@ public class GroupScheduler {
         System.out.println("********* RESULTS ***********");
         for(int i = 0; i < groups.length; i++) {
             Cluster c = groups[i];
-            Stack<DataPoint> dps = c.getDataPoints();
-            System.out.println("Group " + i + ":");
+            ArrayList<DataPoint> dps = c.getDataPoints();
+            System.out.println();
+            System.out.println("Group " + i + ", size: " + dps.size());
             /* Print some info about all swimmers in this group */
-            while(!dps.empty()) {
-                Swimmer s = dps.pop().getSwimmer();
+            for(int j = 0; j < dps.size(); j++) {
+                Swimmer s = dps.get(j).getSwimmer();
                 Calendar bday = s.BIRTHDATE;
-                String bday_str = bday.YEAR + "-" + bday.MONTH + 
-                    "-" + bday.DAY_OF_MONTH;
+                int year = bday.get(Calendar.YEAR);
+                int month = bday.get(Calendar.MONTH);
+                int day = bday.get(Calendar.DAY_OF_MONTH);
+                String bday_str = year + "-" + month + "-" + day;
                 System.out.println(s.FIRST_NAMES + ", born: " + bday_str + 
                     ", recommended for: " + s.RECOMENDATION);
             }
@@ -63,22 +66,24 @@ public class GroupScheduler {
         int currentClusterDistance = totalClusterDistance();
         
         /* Iterate k-means until the total distance remains unchanged */
-        while(oldClusterDistance > currentClusterDistance) {           
+        while(oldClusterDistance > currentClusterDistance) {
             /* Clear all assigned data points to the clusters */
             for (Cluster c : clusters) {
                 c.clearDataPoints();
             }
             
             /* Store all data points in its closest cluster */
+            int iterations = 0;
             for (DataPoint data_point : data_points) {
-                Cluster closest = nearestCluster(data_point, clusters);
-                closest.addPoint(data_point);
+                int closest_index = nearestCluster(data_point, clusters);
+                clusters[closest_index].addPoint(data_point);
+                iterations ++;
             }
             
             /* Move each group to the mean of all its points */
             for (Cluster c : clusters) {
-                Stack<DataPoint> dps = c.getDataPoints();
-                if (!dps.empty()) {
+                ArrayList<DataPoint> dps = c.getDataPoints();
+                if (dps.size() != 0) {
                     float[] meanPos = meanGridPosition(dps);
                     c.setPosition(meanPos);
                 }
@@ -95,9 +100,9 @@ public class GroupScheduler {
     private int totalClusterDistance() {
         int total = 0;
         for (Cluster c : clusters) {
-            Stack<DataPoint> dps = c.getDataPoints();
-            while (!dps.empty()) {
-                DataPoint point = dps.pop();
+            ArrayList<DataPoint> dps = c.getDataPoints();
+            for(int i = 0; i < dps.size(); i++) {
+                DataPoint point = dps.get(i);
                 total += distance(point, c);
             }
         }
@@ -116,37 +121,43 @@ public class GroupScheduler {
     }
     
     /* Calculates the mean position of the given data points */
-    private float[] meanGridPosition(Stack<DataPoint> dps) {
-        int dimension = dps.peek().getPosition().length;
+    private float[] meanGridPosition(ArrayList<DataPoint> dps) {
+        int dimension = dps.get(0).getPosition().length;
         float[] sums = new float[dimension];
-        int stacksize = 0;
+        int totalPoints = 0;
         
         /* Summarize each dimension (x, y, z, ...) into an array */
-        while (!dps.empty()) {
-            DataPoint point = dps.pop();
+        for (int i = 0; i < dps.size(); i++) {
+            DataPoint point = dps.get(i);
             float[] coords = point.getPosition();
-            for (int i = 0; i < coords.length; i++) {
-                sums[i] += coords[i];
+            for (int j = 0; j < coords.length; j++) {
+                sums[j] += coords[j];
             }
-            stacksize += 1;
+            totalPoints += 1;
         }
         
         /* Then divide each sum with the amount of data points to get the mean */
         for (int i = 0; i < dimension; i++) {
-            sums[i] /= stacksize;
+            sums[i] /= totalPoints;
         }      
         return sums;
     }
     
-    /* Chose the clusters closest to the given data point */
-    private Cluster nearestCluster(DataPoint data_point, Cluster[] clusters) {
+    /**
+     * Chose the index of the cluster closest to the given data point in the 
+     * given array 
+     */
+    private int nearestCluster(DataPoint data_point, Cluster[] clusters) {
         float min = -1;
-        Cluster nearest = null;
+        int nearest = -1;
+        int index = 0;
         for (Cluster cluster : clusters) {
             float dis = distance(data_point, cluster);
             if (dis < min || min == -1) {
-                nearest = cluster;
+                nearest = index;
+                min = dis;
             }
+            index += 1;
         }
         return nearest;
     }

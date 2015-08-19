@@ -1,5 +1,5 @@
 
-import java.util.Stack;
+import java.util.ArrayList;
 
 /**
  * Represents a cluster on the grid.
@@ -7,17 +7,17 @@ import java.util.Stack;
 public class Cluster implements GridPoint {
     /* Fields */
     private float[] coordinates;
-    private Stack<DataPoint> assignedDataPoints;
+    private ArrayList<DataPoint> assignedDataPoints;
     
     /* Constructor */
     public Cluster(float[] startPosition) {
         coordinates = startPosition;
-        assignedDataPoints = new Stack<DataPoint>();
+        assignedDataPoints = new ArrayList<DataPoint>();
     }
     
     /* Clears all data points assigned to this cluster */
     public void clearDataPoints() {
-        assignedDataPoints = new Stack<DataPoint>();
+        assignedDataPoints = new ArrayList<DataPoint>();
     }
     
     /* Get current position of this point */
@@ -35,11 +35,11 @@ public class Cluster implements GridPoint {
     
     /* Appends a DataPoint to this Cluster */
     public void addPoint(DataPoint dp) {
-        assignedDataPoints.push(dp);
+        assignedDataPoints.add(dp);
     }
     
     /* Return a stack of all data points assigned to this cluster */
-    public Stack<DataPoint> getDataPoints() {
+    public ArrayList<DataPoint> getDataPoints() {
         return assignedDataPoints;
     }
 }

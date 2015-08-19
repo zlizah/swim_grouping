@@ -45,7 +45,9 @@ public class Swimmer {
         int month = Integer.parseInt(date[1]);
         int day = Integer.parseInt(date[2]);
         
-        BIRTHDATE.set(year, month, day);
+        BIRTHDATE.set(Calendar.YEAR, year);
+        BIRTHDATE.set(Calendar.MONTH, month);
+        BIRTHDATE.set(Calendar.DAY_OF_MONTH, day);
     }
     
     /**
