@@ -1,6 +1,7 @@
 
 import java.util.Random;
 import java.util.Stack;
+import java.util.Calendar;
 
 /**
  * Main class that does the scheduling
@@ -27,8 +28,28 @@ public class GroupScheduler {
      * Main
      */
     public static void main(String[] args) {
-        /* TODO Generate some swimmers */
-        /* TODO Group the swimmers */
+        /* Group some swimmers */
+        GroupScheduler gs = new GroupScheduler(
+            SwimmerGenerator.generateSwimmers(100)
+        );
+        Cluster[] groups = gs.scheduleGroups(10);
+        
+        /* Print results */
+        System.out.println("********* RESULTS ***********");
+        for(int i = 0; i < groups.length; i++) {
+            Cluster c = groups[i];
+            Stack<DataPoint> dps = c.getDataPoints();
+            System.out.println("Group " + i + ":");
+            /* Print some info about all swimmers in this group */
+            while(!dps.empty()) {
+                Swimmer s = dps.pop().getSwimmer();
+                Calendar bday = s.BIRTHDATE;
+                String bday_str = bday.YEAR + "-" + bday.MONTH + 
+                    "-" + bday.DAY_OF_MONTH;
+                System.out.println(s.FIRST_NAMES + ", born: " + bday_str + 
+                    ", recommended for: " + s.RECOMENDATION);
+            }
+        }
     }
         
     /* Main function used to do the scheduling using the K-means algorithm */
@@ -57,8 +78,10 @@ public class GroupScheduler {
             /* Move each group to the mean of all its points */
             for (Cluster c : clusters) {
                 Stack<DataPoint> dps = c.getDataPoints();
-                float[] meanPos = meanGridPosition(dps);
-                c.setPosition(meanPos);
+                if (!dps.empty()) {
+                    float[] meanPos = meanGridPosition(dps);
+                    c.setPosition(meanPos);
+                }
             }
             
             /* Update the total cluster distances */
